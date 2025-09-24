@@ -195,7 +195,7 @@ def validate_race_type(race_name, league_info):
         race_types = {
             'sprint aquabike': ['sprint aquabike'],
             'aquabike': ['aquabike', 'standard aquabike'],
-            'aquabike 70.3': ['ironman 70.3 aquabike', 'challenge middle distance aquabike'],
+            'aquabike 70.3': ['ironman 70.3 aquabike', '70.3 aquabike', 'challenge middle distance aquabike'],
             'aquathon': ['aquathlon', 'aquathon'],
             'long aqua': ['long aqua', 'long aquathlon'],
             'short aqua': ['short aqua'],
@@ -206,7 +206,7 @@ def validate_race_type(race_name, league_info):
             'classic': ['classic'],
             'club': ['club'],
             'half club': ['half club'],
-            'ironman 70.3': ['ironman 70.3', 'ultimate', 'enduro', 'challenge middle distance'],
+            'ironman 70.3': ['70.3', 'ironman 70.3', 'ultimate', 'enduro', 'challenge middle distance'],
             'ironman': ['ironman'],
             'ultra': ['ultra'],
             'teams': ['teams'],
@@ -434,7 +434,8 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
     # Combine ALL race results for the round
     combined_results = pd.concat(all_results_dfs, ignore_index=True)
     print(f"Combined results shape: {combined_results.shape}")
-    
+    # Lowercase 'Club Name' in combined_results for consistency
+    combined_results['Club Name'] = combined_results['Club Name'].str.lower()
     # Count TOTAL finishers per club across ALL races in the round
     club_total_finishers = combined_results['Club Name'].value_counts().to_dict()
     print(f"Total finishers per club across all races: {club_total_finishers}")
@@ -449,7 +450,7 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
     # Apply participation thresholds ONCE based on total finishers
     for idx, row in participation_df.iterrows():
         club_name = row['Club']
-        total_finishers = club_total_finishers.get(club_name, 0)
+        total_finishers = club_total_finishers.get(club_name.lower(), 0)
         participation_df.loc[idx, 'Total Finishers'] = total_finishers
         
         # Apply thresholds
@@ -470,6 +471,7 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
     if any(validation.get('double_points', False) for validation in race_validations):
         participation_df['Participation Points'] *= 2
 
+    print(participation_df)
     return participation_df
 
 def generate_round_summary(all_points_dfs, all_results_dfs, icl_df, race_validations):

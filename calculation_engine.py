@@ -146,7 +146,11 @@ def partial_match(str1, str2):
 def validate_race_type(race_name, league_info):
     """Validate if race type is allowed based on the race types listed in season source"""
     try:
+        # Extract the race name after the round number (e.g., "Round 1 Sprint Distance" -> "Sprint Distance", "R10 Club Champs" -> "Club Champs")
         race_name = race_name.lower()
+        match = re.search(r'(?:round\s*|r)\d+\s*(.*)', race_name, re.IGNORECASE)
+        if match:
+            race_name = match.group(1).strip()
         print(f"\nValidating race type: {race_name}")
         
         # Get performance & participation race types
@@ -189,18 +193,34 @@ def validate_race_type(race_name, league_info):
         
         # Define race type keywords with variations
         race_types = {
-            'sprint': ['sprint', 'half club', 'half distance'],
-            'standard': ['standard', 'olympic', 'club distance', '70.3', 'club'],
-            'aquabike': ['aquabike', 'aquathlon'],
-            'classic': ['classic', 'enduro'],
-            'ultimate': ['ultimate', 'ultra', 'super']
+            'sprint aquabike': ['sprint aquabike'],
+            'aquabike': ['aquabike', 'standard aquabike'],
+            'aquabike 70.3': ['ironman 70.3 aquabike', 'challenge middle distance aquabike'],
+            'aquathon': ['aquathlon', 'aquathon'],
+            'long aqua': ['long aqua', 'long aquathlon'],
+            'short aqua': ['short aqua'],
+            'mini aqua': ['mini aqua'],
+            'super sprint': ['super sprint', 'enitcer', 'tempta'],
+            'sprint': ['sprint', 'sprint distance'],
+            'standard': ['standard', 'olympic', 'standard distance'],
+            'classic': ['classic'],
+            'club': ['club'],
+            'half club': ['half club'],
+            'ironman 70.3': ['ironman 70.3', 'ultimate', 'enduro', 'challenge middle distance'],
+            'ironman': ['ironman'],
+            'ultra': ['ultra'],
+            'teams': ['teams'],
+            'duathlon': ['durathlon'],
+            'super sprint duathlon': ['super sprint duathlon'],
+            'sprint duathlon': ['sprint duathlon'],
+            'standard durathlon': ['standard durathlon']
         }
         
         # Find all matching race types in the name
         found_types = set()
-        for base_type, keywords in race_types.items():
-            if any(keyword in race_name for keyword in keywords):
-                found_types.add(base_type)
+        for type_name, variations in race_types.items():
+            if any(variation == race_name.strip() for variation in variations):  # fix to exact match
+                found_types.add(type_name)
         
         if not found_types:
             print(f"Warning: Could not identify race type in: {race_name}")
@@ -217,12 +237,12 @@ def validate_race_type(race_name, league_info):
             # Split compound types (e.g., "club and aquabike" -> ["club", "aquabike"])
             expanded_allowed = set()
             for allowed in allowed_types:
-                parts = [p.strip() for p in allowed.split('and')]
+                parts = [p.strip() for p in allowed.split(' and ')]
                 expanded_allowed.update(parts)
             
             # Check if any found type matches any allowed type
             return any(
-                any(found in allowed or allowed in found 
+                any(found == allowed 
                     for allowed in expanded_allowed)
                 for found in found_types
             )

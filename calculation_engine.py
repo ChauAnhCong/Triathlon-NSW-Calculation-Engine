@@ -96,7 +96,7 @@ def get_column_mapping(df):
         'Category': ['Category', 'CATGY', 'Race Category', 'Division', 'Category '],
         'Category Finish Place': ['Category Finish Place', 'FINISH_CAT_PLACE', 'Cat Place', 'Division Place', 'Category Finish Place '],
         'Club Name': ['Club Name', 'Triathlon Club', 'Club', 'CLUB', 'Club Name '],
-        'Per P': ['Per P', 'Performance points', 'Performance Points', 'Perf Points', 'Performance points Participation points or both'],
+        'Per P': ['Per P', 'Performance points', 'Performance Points', 'Perf Points'],
     }
     actual_columns = {}
     for std_name, possible_names in column_mappings.items():
@@ -628,7 +628,7 @@ def update_season_history(results_df, round_info):
     # Define the columns we want to keep in the history
     desired_columns = [
         'First Name', 'Surname', 'TA Number', 'Category', 'Category Finish Place',
-        'Per P', 'Club Name', 'Performance points Participation points or both',
+        'Club Name', 'Performance points Participation points or both',
         'Race_Type'
     ]
     

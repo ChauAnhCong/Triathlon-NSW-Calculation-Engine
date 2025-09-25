@@ -1,3 +1,4 @@
+from numpy import floor
 import pandas as pd
 import re
 import os
@@ -334,7 +335,8 @@ def calculate_race_performance_points(results_df, icl_df, race_validation):
         club_mapping = {}
         for icl_norm, icl_club in zip(icl_df['Club Norm'], icl_df['Club']):
             for result_norm, result_club in zip(results_df['Club Name Norm'], results_df['Club Name']):
-                if partial_match(icl_norm, result_norm):
+                # if partial_match(icl_norm, result_norm):
+                if icl_norm == result_norm:     # use exact match instead as a priority
                     club_mapping[result_club] = icl_club
         
         print(f"Club mapping: {club_mapping}")
@@ -453,12 +455,14 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
         total_finishers = club_total_finishers.get(club_name.lower(), 0)
         participation_df.loc[idx, 'Total Finishers'] = total_finishers
         
+        if total_finishers == 0:
+            participation_points = 0
         # Apply thresholds
-        if total_finishers >= row['45 PTS (20%)']:
+        elif total_finishers >= floor(row['45 PTS (20%)']):
             participation_points = 45
-        elif total_finishers >= row['30 PTS (10%)']:
+        elif total_finishers >= floor(row['30 PTS (10%)']):
             participation_points = 30
-        elif total_finishers >= row['15PTS (5%)']:
+        elif total_finishers >= floor(row['15PTS (5%)']):
             participation_points = 15
         else:
             participation_points = 0

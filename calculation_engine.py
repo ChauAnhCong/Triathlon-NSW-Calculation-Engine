@@ -699,6 +699,7 @@ def process_round_file(round_info, season_source):
             try:
                 icl_df = xl.parse('Current ICL Eligible Number')
                 icl_df = normalize_column_names(icl_df)
+                icl_df['Club'] = icl_df['Club'].str.strip().str.replace(r'\s+', ' ', regex=True)
                 if 'ICL Eligible Number' not in icl_df.columns:
                     print("Warning: ICL sheet missing required column 'ICL Eligible Number'")
             except Exception as e:

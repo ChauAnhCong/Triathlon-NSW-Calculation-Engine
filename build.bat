@@ -14,7 +14,7 @@ echo.
 
 REM Build the executable to main folder
 echo Building executable...
-pyinstaller --onefile --distpath . calculation_engine.py
+pyinstaller --onefile --distpath . --hidden-import=encodings calculation_engine.py
 echo.
 
 REM Check if build was successful

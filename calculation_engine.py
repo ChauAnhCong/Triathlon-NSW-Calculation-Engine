@@ -3,15 +3,26 @@ import pandas as pd
 import re
 import os
 import shutil
+import sys
 from datetime import datetime
+
+def get_base_path():
+    if getattr(sys, 'frozen', False):
+        # Running as compiled executable
+        return os.path.dirname(sys.executable)
+    else:
+        # Running as script
+        return os.path.dirname(os.path.abspath(__file__))
+
 # Add new constants for directory structure
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = get_base_path()
 DATA_DIR = os.path.join(BASE_DIR, 'data')
 INPUT_DIR = os.path.join(DATA_DIR, 'input')
 OUTPUT_DIR = os.path.join(DATA_DIR, 'output')
 PROCESSED_DIR = os.path.join(DATA_DIR, 'processed')
 CURRENT_SEASON_DIR = os.path.join(DATA_DIR, 'season', 'current_season')
 PAST_SEASON_DIR = os.path.join(DATA_DIR, 'season', 'past_season')
+
 def normalize_column_names(df):
     """
     Normalize column names by:

@@ -360,8 +360,11 @@ def calculate_race_performance_points(results_df, icl_df, race_validation):
         points_df = icl_df.copy()
         points_df = points_df.dropna(subset=['Club'])  # Remove rows with no club name
         points_df = points_df[points_df['Club'].str.strip() != '']  # Remove rows with empty club names
-        points_df['Participation Points'] = 0  # Will be calculated at round level
         points_df['Performance Points'] = 0
+
+        # Count finishers per club (using mapped names)
+        finishers = results_df['Club Name Mapped'].value_counts()
+        points_df['Total That Raced'] = points_df['Club'].map(finishers).fillna(0)
         
         # Calculate performance points if eligible
         if race_validation['performance_eligible']:
@@ -375,11 +378,8 @@ def calculate_race_performance_points(results_df, icl_df, race_validation):
         if race_validation['double_points']:
             points_df['Performance Points'] *= 2
         
-        # Calculate total points (only performance for individual races)
-        points_df['Total Points'] = points_df['Performance Points']
-        
         print("\nRace performance points calculation:")
-        print(points_df[['Club', 'Performance Points', 'Total Points']])
+        print(points_df[['Club', 'Performance Points', 'Total That Raced']])
         return points_df
         
     except Exception as e:
@@ -768,17 +768,7 @@ def process_round_file(round_info, season_source):
                         
                         # Calculate performance points for this race
                         points_df = calculate_race_performance_points(race_df, icl_df.copy(), race_validation)
-                        
-                        print(f"Race performance points calculation returned:")
-                        print(f"Shape: {points_df.shape}")
-                        print(f"Columns: {list(points_df.columns)}")
-                        print(f"Performance Points column values: {points_df['Performance Points'].tolist()}")
-                        
                         points_df['Race_Type'] = sheet_name
-                        
-                        print(f"Before appending to all_points:")
-                        print(points_df[['Club', 'Performance Points', 'Total Points']])
-                        
                         all_points.append(points_df)
                         
                         print(f"Current all_points length: {len(all_points)}")
@@ -843,7 +833,7 @@ def process_round_file(round_info, season_source):
                     race_type = race_df['Race_Type'].iloc[0] if 'Race_Type' in race_df.columns else 'Unknown Race'
                     
                     # Combine race results with club points for this race
-                    race_summary = race_points[['Club', 'Participation Points', 'Performance Points', 'Total Points']]
+                    race_summary = race_points[['Club', 'Total That Raced', 'Performance Points']]
                     race_summary.to_excel(writer, sheet_name=f'{race_type} Points', index=False)
             
         # Update season history

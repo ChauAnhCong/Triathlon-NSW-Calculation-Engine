@@ -35,11 +35,15 @@ def normalize_column_names(df):
         for col in df.columns
     ]
     return df
+
+
 def ensure_directories():
     """Create directory structure if it doesn't exist"""
     for directory in [INPUT_DIR, OUTPUT_DIR, PROCESSED_DIR, 
                      CURRENT_SEASON_DIR, PAST_SEASON_DIR]:
         os.makedirs(directory, exist_ok=True)
+
+
 def get_season_source_of_truth():
     """Get and validate season source of truth file"""
     source_path = os.path.join(INPUT_DIR, 'Triathlon Season.xlsx')
@@ -77,6 +81,8 @@ def get_season_source_of_truth():
             return None
     
     return current_source_path if os.path.exists(current_source_path) else None
+
+
 def find_new_round_files():
     """Find new round files in input directory"""
     pattern = r'(.*?) Round (\d+) (.*?)\.xlsx'
@@ -117,6 +123,8 @@ def get_column_mapping(df):
             actual_columns[std_name] = found_col
     
     return actual_columns
+
+
 def validate_and_standardize_columns(race_df, sheet_name):
     """Validate required columns and standardize column names"""
     required_columns = {
@@ -141,6 +149,8 @@ def validate_and_standardize_columns(race_df, sheet_name):
     race_df = race_df.rename(columns={v: k for k, v in column_mapping.items()})
     
     return race_df
+
+
 def normalize_string(text):
     """Normalize a string by removing punctuation and extra spaces, and converting to lowercase."""
     if pd.isna(text):  # Handle NaN/None values
@@ -148,6 +158,8 @@ def normalize_string(text):
     normalized = re.sub(r'[^\w\s]', '', str(text).lower())  # Convert to string first
     normalized = re.sub(r'\s+', ' ', normalized).strip()
     return normalized
+
+
 def partial_match(str1, str2):
     """Check if one normalized string is completely contained in the other."""
     if pd.isna(str1) or pd.isna(str2):  # Handle NaN/None values
@@ -155,6 +167,8 @@ def partial_match(str1, str2):
     norm1 = normalize_string(str1)
     norm2 = normalize_string(str2)
     return norm1 and norm2 and (norm1 in norm2 or norm2 in norm1)
+
+
 def validate_race_type(race_name, league_info):
     """Validate if race type is allowed based on the race types listed in season source"""
     try:
@@ -283,6 +297,8 @@ def validate_race_type(race_name, league_info):
             'participation_eligible': True,
             'double_points': False
         }
+
+
 def calculate_individual_performance_points(place):
     """Calculate individual performance points based on category finish place"""
     place_points = {
@@ -290,6 +306,8 @@ def calculate_individual_performance_points(place):
         6: 5, 7: 4, 8: 3, 9: 2, 10: 1
     }
     return place_points.get(place, 0) if pd.notnull(place) else 0
+
+
 def calculate_performance_points(results_df):
     """Calculate performance points based on category finish positions"""
     try:
@@ -323,6 +341,8 @@ def calculate_performance_points(results_df):
         import traceback
         traceback.print_exc()
         return {}
+
+
 def calculate_race_performance_points(results_df, icl_df, race_validation):
     """Calculate performance points for a single race (participation points are now handled at round level)"""
     try:
@@ -388,6 +408,7 @@ def calculate_race_performance_points(results_df, icl_df, race_validation):
         traceback.print_exc()
         return None
     
+
 def generate_individual_mvp_data(all_results_dfs, race_validations):
     """Generate individual MVP data for round and season"""
     all_individual_results = []
@@ -437,6 +458,7 @@ def generate_individual_mvp_data(all_results_dfs, race_validations):
         'club_mvps': club_mvps,
         'individual_results': combined_results
     }
+
 
 def calculate_round_participation_points(all_results_dfs, icl_df, race_validations):
     """
@@ -490,6 +512,7 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
     print(participation_df)
     return participation_df
 
+
 def generate_round_summary(all_points_dfs, all_results_dfs, icl_df, race_validations):
     """Generate round summary with participation and performance breakdowns"""
     
@@ -539,9 +562,9 @@ def generate_round_summary(all_points_dfs, all_results_dfs, icl_df, race_validat
     # STEP 8: Sort by total points descending
     round_summary = round_summary.sort_values('Total Points', ascending=False)
     
-
     return round_summary
-    
+
+
 def generate_season_ladder(round_summary, season_ladder_path):
     """Generate cumulative season ladder"""
     try:
@@ -575,6 +598,8 @@ def generate_season_ladder(round_summary, season_ladder_path):
     except Exception as e:
         print(f"Error generating season ladder: {e}")
         return pd.DataFrame()
+
+
 def generate_season_mvp_ladder(round_mvp_data):
     """Generate cumulative season MVP ladder"""
     try:
@@ -609,6 +634,8 @@ def generate_season_mvp_ladder(round_mvp_data):
     except Exception as e:
         print(f"Error generating season MVP ladder: {e}")
         return pd.DataFrame()
+
+
 def generate_club_individual_mvp_sheets(round_mvp_data):
     """Generate individual MVP sheets for each club"""
     try:
@@ -639,6 +666,8 @@ def generate_club_individual_mvp_sheets(round_mvp_data):
     except Exception as e:
         print(f"Error generating club individual MVP sheets: {e}")
         return {}
+
+
 def update_season_history(results_df, round_info):
     """Update season history with new round results"""
     history_path = os.path.join(CURRENT_SEASON_DIR, 'Season_History.xlsx')
@@ -680,6 +709,8 @@ def update_season_history(results_df, round_info):
     
     # Save updated history
     updated_history.to_excel(history_path, index=False)
+
+
 def process_round_file(round_info, season_source):
     """Process a single round file with multiple race sheets"""
     try:
@@ -851,6 +882,8 @@ def process_round_file(round_info, season_source):
         
     except Exception as e:
         print(f"  {e}")
+
+
 def main():
     """Main function to process triathlon results"""
     ensure_directories()
@@ -878,5 +911,6 @@ def main():
         process_round_file(round_info, season_source)
     
     print("\nProcessing complete!")
+    
 if __name__ == "__main__":
     main()

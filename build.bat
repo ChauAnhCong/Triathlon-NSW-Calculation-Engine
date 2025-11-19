@@ -12,6 +12,11 @@ if exist calculation_engine.spec del calculation_engine.spec
 if exist calculation_engine.exe del calculation_engine.exe
 echo.
 
+REM Activate virtual environment and build the executable
+echo Activating virtual environment...
+call venv\Scripts\activate.bat
+echo.
+
 REM Build the executable to main folder
 echo Building executable...
 pyinstaller --onefile --distpath . --hidden-import=encodings calculation_engine.py

@@ -85,7 +85,7 @@ def get_season_source_of_truth():
 
 def find_new_round_files():
     """Find new round files in input directory"""
-    pattern = r'(.*?) Round (\d+) (.*?)\.xlsx'
+    pattern = r'(.*?) Round (\d+)\s*(.*?)\.xlsx'
     round_files = []
     
     for filename in os.listdir(INPUT_DIR):

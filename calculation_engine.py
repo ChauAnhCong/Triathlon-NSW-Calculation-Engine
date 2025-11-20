@@ -1,4 +1,4 @@
-from numpy import floor
+from numpy import floor, ceil
 import pandas as pd
 import re
 import os
@@ -159,6 +159,11 @@ def normalize_string(text):
     normalized = re.sub(r'\s+', ' ', normalized).strip()
     return normalized
 
+def smart_round(value):
+    if 0 < value < 1:
+        return 1
+    else:
+        return floor(value)
 
 def partial_match(str1, str2):
     """Check if one normalized string is completely contained in the other."""
@@ -233,7 +238,7 @@ def validate_race_type(race_name, league_info):
             'club': ['club'],
             'club distance': ['club distance'],
             'half club': ['half club'],
-            'ironman 70.3': ['70.3', 'ironman 70.3', 'ultimate', 'enduro', 'challenge middle distance'],
+            '70.3': ['70.3', 'ironman 70.3', 'ultimate', 'enduro', 'challenge middle distance'],
             'ironman': ['ironman'],
             'ultra': ['ultra'],
             'teams': ['teams'],
@@ -489,14 +494,18 @@ def calculate_round_participation_points(all_results_dfs, icl_df, race_validatio
         total_finishers = club_total_finishers.get(club_name.lower(), 0)
         participation_df.loc[idx, 'Total Finishers'] = total_finishers
         
+        threshold_45 = smart_round(row['45 PTS (20%)'])
+        threshold_30 = smart_round(row['30 PTS (10%)'])
+        threshold_15 = smart_round(row['15PTS (5%)'])
+
         if total_finishers == 0:
             participation_points = 0
         # Apply thresholds
-        elif total_finishers >= floor(row['45 PTS (20%)']):
+        elif total_finishers >= threshold_45:
             participation_points = 45
-        elif total_finishers >= floor(row['30 PTS (10%)']):
+        elif total_finishers >= threshold_30:
             participation_points = 30
-        elif total_finishers >= floor(row['15PTS (5%)']):
+        elif total_finishers >= threshold_15:
             participation_points = 15
         else:
             participation_points = 0

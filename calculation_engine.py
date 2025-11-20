@@ -225,7 +225,7 @@ def validate_race_type(race_name, league_info):
         # Define race type keywords with variations
         race_types = {
             'sprint aquabike': ['sprint aquabike'],
-            'aquabike': ['aquabike', 'standard aquabike'],
+            'standard aquabike': ['aquabike', 'standard aquabike'],
             'aquabike 70.3': ['ironman 70.3 aquabike', '70.3 aquabike', 'challenge middle distance aquabike'],
             'aquathon': ['aquathlon', 'aquathon'],
             'long aqua': ['long aqua', 'long aquathlon'],
